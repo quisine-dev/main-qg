@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/logistique",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Logistique\\": "app/",
+            "Modules\\Logistique\\Database\\Factories\\": "database/factories/",
+            "Modules\\Logistique\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Logistique\\Tests\\": "tests/"
+        }
+    }
+}

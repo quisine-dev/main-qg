@@ -1,0 +1,11 @@
+{
+    "name": "Logistique",
+    "alias": "logistique",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Logistique\\Providers\\LogistiqueServiceProvider"
+    ],
+    "files": []
+}
