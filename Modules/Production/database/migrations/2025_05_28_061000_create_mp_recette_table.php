@@ -11,20 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('compositions', function (Blueprint $table) {
+        Schema::create('mp_recette', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mpc_id')->constrained('matiere_premieres');
+            $table->foreignId('recette_id')->constrained();
             $table->foreignId('mp_id')->constrained('matiere_premieres');
-            $table->decimal('qte');
             $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.P
+     * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('compositions');
+        Schema::dropIfExists('mp_recette');
     }
 };
