@@ -15,7 +15,6 @@ class MatierePremiereController extends Controller
     public function index()
     {
         $mps = MatierePremiere::paginate(10);
-        // dd($mp);
         return Inertia::render('production/mp', ['mps'=>$mps]);
     }
 
@@ -66,10 +65,34 @@ class MatierePremiereController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id) {}
+    public function update(Request $request, $id)
+    {
+        // Validation
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'type' => 'required|string|max:100',
+            'unite' => 'required|string|max:50',
+            'prix_unitaire' => 'required|numeric|min:0',
+        ]);
+
+        // Récupération et mise à jour de la ressource
+        $matiere = MatierePremiere::findOrFail($id);
+        $matiere->update($validated);
+
+        // Redirection
+        return redirect()->route('production.mp.index')->with('success', 'Matière première mise à jour avec succès.');
+    }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id) {}
+    public function destroy($id)
+{
+    $matiere = MatierePremiere::findOrFail($id);
+    $matiere->delete();
+
+    return redirect()->route('production.mp.index')->with('success', 'Matière première supprimée avec succès.');
+}
+
 }
