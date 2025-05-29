@@ -4,7 +4,18 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+// import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { 
+    LayoutGrid,
+    Package,
+    Layers,
+    BookOpen, 
+    ShoppingBag, 
+    Calculator, 
+    ClipboardList 
+} from 'lucide-react';
+
+
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -13,19 +24,50 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
+    {
+        title: 'Matière Première',
+        href: '/production/mp',
+        icon: Package,
+    },
+    {
+        title: 'Composition',
+        href: '/production/composition',
+        icon: Layers,
+    },
+    {
+        title: 'Recette',
+        href: '/production/recette',
+        icon: BookOpen,
+    },{
+        title: 'Produit',
+        href: '/production/produit',
+        icon: ShoppingBag,
+    },
+    {
+        title: 'Cout Production',
+        href: '/production/cout-production',
+        icon: Calculator,
+    },
+    {
+        title: 'Ordre Production',
+        href: '/production/ordre-production',
+        icon: ClipboardList,
+    }
+
+    
 ];
 
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+    // {
+    //     title: 'Repository',
+    //     href: 'https://github.com/laravel/react-starter-kit',
+    //     icon: Folder,
+    // },
+    // {
+    //     title: 'Documentation',
+    //     href: 'https://laravel.com/docs/starter-kits#react',
+    //     icon: BookOpen,
+    // },
 ];
 
 export function AppSidebar() {

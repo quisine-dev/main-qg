@@ -5,17 +5,18 @@ namespace Modules\Production\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Modules\Production\Models\MatierePremiere;
 
-class ProductionController extends Controller
+class MatierePremiereController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('production');
-
-        // return view('production::index');
+        $mps = MatierePremiere::paginate(10);
+        // dd($mp);
+        return Inertia::render('production/mp', ['mps'=>$mps]);
     }
 
     /**
@@ -29,7 +30,22 @@ class ProductionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+        // Validation des données
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'type' => 'required|string|max:100',
+            'unite' => 'required|string|max:50',
+            'prix_unitaire' => 'required|numeric|min:0',
+        ]);
+
+        // Création de la matière première
+        MatierePremiere::create($validated);
+
+        // Redirection ou réponse à gérer dans ta logique
+        return redirect()->route('production.mp.index')->with('success', 'Matière première ajoutée avec succès.');
+    }
 
     /**
      * Show the specified resource.

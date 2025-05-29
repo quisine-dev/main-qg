@@ -6,16 +6,15 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class ProductionController extends Controller
+class CoutProduitController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('production');
+        return Inertia::render('production/cout-production');
 
-        // return view('production::index');
     }
 
     /**

@@ -6,16 +6,14 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class ProductionController extends Controller
+class RecetteController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('production');
-
-        // return view('production::index');
+        return Inertia::render('production/recette');
     }
 
     /**

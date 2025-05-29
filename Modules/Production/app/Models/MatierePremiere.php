@@ -2,15 +2,15 @@
 
 namespace Modules\Production\Models;
 
+use Modules\Production\Models\Recette;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Production\Models\Composition;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 // use Modules\Production\Database\Factories\MatierePremiereFactory;
 
-class Matiere_Premiere extends Model
+class MatierePremiere extends Model
 {
     use HasFactory;
 
@@ -28,13 +28,16 @@ class Matiere_Premiere extends Model
     // {
     //     // return MatierePremiereFactory::new();
     // }
-   
-    public function composition():BelongsTo
-    {
+
+    public function composition() : BelongsTo {
         return $this->belongsTo(Composition::class);
     }
-    public function ordreProduction():BelongsTo
+
+    public function recettes(): BelongsToMany
     {
-        return $this->belongsTo(OrdreProduction::class);
+        return $this->belongsToMany(Recette::class);
     }
+    
+
+
 }
