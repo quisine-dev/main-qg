@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 // use Modules\Production\Database\Factories\CompositionFactory;
 
 class Composition extends Model
@@ -19,8 +21,6 @@ class Composition extends Model
      */
     protected $fillable = [
         "mpc_id",
-        "mp_id",
-        "qte",
     ];
 
     // protected static function newFactory(): CompositionFactory
@@ -30,15 +30,21 @@ class Composition extends Model
 
     // RelationShip
     
-    public function mpc(): HasOne
+    public function mpc(): BelongsTo
     {
-        return $this->hasOne(MatierePremiere::class);
+        return $this->belongsTo(MatierePremiere::class,'mpc_id');
     }
 
-    public function matierePremieres():HasMany
+    public function matierePremieres(): BelongsToMany
     {
-        return $this->hasMany(MatierePremiere::class);
+        return $this->belongsToMany(
+            MatierePremiere::class,
+            'composition_matiere_premiere',  // nom de la table pivot
+            'composition_id',                // clé étrangère locale
+            'matiere_premiere_id'            // clé étrangère liée
+        )->withPivot('qte');                 // pour inclure la quantité dans les résultats
     }
+
     
     
 

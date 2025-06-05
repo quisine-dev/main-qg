@@ -33,6 +33,11 @@ class MatierePremiere extends Model
         return $this->belongsTo(Composition::class);
     }
 
+    public function compositions() : BelongsToMany {
+        return $this->belongsToMany(Composition::class);
+    }
+
+
     public function recettes(): BelongsToMany
     {
         return $this->belongsToMany(Recette::class);

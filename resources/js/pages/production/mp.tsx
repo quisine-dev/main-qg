@@ -32,7 +32,7 @@ import {Label} from '@/components/ui/label';
 import {Toaster, toast} from "sonner";
 import AppLayout from '@/layouts/app-layout';
 
-interface MatierePremiere {
+export interface MatierePremiere {
     id : number,
     nom : string,
     type : string,
@@ -155,13 +155,13 @@ export default function Mp({mps}:MatierePremierePageProps){
 
 
 
-    const unites = ["kg", "Litre", "pièce", "paquet"]
+    const unites = ["g","kg", "Litre"];
 
 
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="MAtière Première" />
+            <Head title="Matière Première" />
             <Toaster richColors closeButton position="top-right" />
 
             {/* Main */}
