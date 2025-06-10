@@ -5,6 +5,8 @@ namespace Modules\Production\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Modules\Production\Models\MatierePremiere;
+use Modules\Production\Models\OrdreProduction;
 
 class OrdreProductionController extends Controller
 {
@@ -13,7 +15,9 @@ class OrdreProductionController extends Controller
      */
     public function index()
     {
-        return Inertia::render('production/ordre-production');
+        $mpcs = MatierePremiere::where('type','MPC')->get();
+        $ordres = OrdreProduction::with('matierePremiere')->get();
+        return Inertia::render('production/ordre-production',['mpcs'=>$mpcs,'ordres'=>$ordres]);
     }
 
     /**
@@ -27,7 +31,32 @@ class OrdreProductionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'composants' => 'required|array|min:1',
+            'composants.*.mp_id' => 'required|exists:matiere_premieres,id',
+            'composants.*.qte' => 'required|numeric|min:0.01',
+            'operateur' => 'required|string|max:255',
+            'statut' => 'required|string|max:10',
+        ]);
+
+        foreach ($validated['composants'] as $composant) {
+            OrdreProduction::create([
+                'mp_id' => $composant['mp_id'],
+                'qte' => $composant['qte'],
+                'operateur' => $validated['operateur'],
+                'statut' => $validated['statut'],
+            ]);
+        }
+
+        return redirect()->route('production.ordre-production.index')->with('success', 'Ordre de Production ajoutée avec succès.');
+
+
+        // return response()->json([
+        //     'message' => 'Ordres de production enregistrés avec succès.'
+        // ], 201);
+    }
 
     /**
      * Show the specified resource.

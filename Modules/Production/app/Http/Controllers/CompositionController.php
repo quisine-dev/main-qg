@@ -35,38 +35,6 @@ class CompositionController extends Controller
         return view('production::create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    // public function store(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'mpc_id' => 'required|exists:matiere_premieres,id',
-    //         'composants' => 'required|array|min:1',
-    //         'composants.*.mp_id' => 'required|exists:matiere_premieres,id|different:mpc_id',
-    //         'composants.*.qte' => 'required|numeric|min:0.01',
-    //     ]);
-
-    //     DB::beginTransaction();
-
-    //     try {
-    //         foreach ($validated['composants'] as $composant) {
-    //             Composition::create([
-    //                 'mpc_id' => $validated['mpc_id'],
-    //                 'mp_id' => $composant['mp_id'],
-    //                 'qte' => $composant['qte'],
-    //             ]);
-    //         }
-
-    //         DB::commit();
-
-    //         return back()->with('success', 'Composition enregistrée avec succès.');
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         return back()->withErrors(['error' => 'Une erreur est survenue : ' . $e->getMessage()]);
-    //     }
-    // }
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -124,10 +92,67 @@ class CompositionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id) {}
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'mpc_id' => 'required|exists:matiere_premieres,id',
+            'composants' => 'required|array|min:1',
+            'composants.*.mp_id' => 'required|exists:matiere_premieres,id|different:mpc_id',
+            'composants.*.qte' => 'required|numeric|min:0.01',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $composition = Composition::findOrFail($id);
+
+            // Mise à jour du champ mpc_id
+            $composition->update([
+                'mpc_id' => $validated['mpc_id'],
+            ]);
+
+            // Mise à jour des matières premières associées
+            $syncData = [];
+            foreach ($validated['composants'] as $composant) {
+                $syncData[$composant['mp_id']] = ['qte' => $composant['qte']];
+            }
+
+            $composition->matierePremieres()->sync($syncData);
+
+            DB::commit();
+
+            return back()->with('success', 'Composition mise à jour avec succès.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->withErrors(['error' => 'Une erreur est survenue : ' . $e->getMessage()]);
+        }
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id) {}
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $composition = Composition::findOrFail($id);
+
+            // Détacher les relations dans la table pivot
+            $composition->matierePremieres()->detach();
+
+            // Supprimer la composition elle-même
+            $composition->delete();
+
+            DB::commit();
+
+            return back()->with('success', 'Composition supprimée avec succès.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->withErrors(['error' => 'Erreur lors de la suppression : ' . $e->getMessage()]);
+        }
+    }
+
 }

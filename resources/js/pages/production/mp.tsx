@@ -38,6 +38,11 @@ export interface MatierePremiere {
     type : string,
     unite: string,
     prix_unitaire : number,
+    pivot?: {
+        composition_id: number;
+        matiere_premiere_id: number;
+        qte: number;
+    }
 }
 
 interface PaginatedData {
@@ -218,89 +223,89 @@ export default function Mp({mps}:MatierePremierePageProps){
 
                     {/* Add/Edit Category Modal */}
                     <Dialog open={showModal} onOpenChange={setShowModal}>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                        <DialogTitle>
-                            {/* {editCategory ? 'Edit Category' : 'Add Category'} */}
-                            Ajouter Matière Première
-                        </DialogTitle>
-                        <DialogDescription>
-                            {/* {editCategory
-                            ? 'Make changes to your category here.'
-                            : 'Create a new category here.'} */}
-                        </DialogDescription>
-                        </DialogHeader>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                            <DialogTitle>
+                                {editMatierePremiere ? 'Editer Matiere Premiere' : 'Ajouter Matiere Premiere'}
+                                {/* Ajouter Matière Première */}
+                            </DialogTitle>
+                            <DialogDescription>
+                                {/* {editCategory
+                                ? 'Make changes to your category here.'
+                                : 'Create a new category here.'} */}
+                            </DialogDescription>
+                            </DialogHeader>
 
-                        <form  onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Nom</Label>
+                            <form  onSubmit={handleSubmit} className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="name">Nom</Label>
+                                    <Input
+                                        id="nom"
+                                        name="nom"
+                                        value={formData.nom}
+                                        onChange={handleInputChange}
+                                        required
+                                    />
+                                </div>
+                                
+                                <div className='flex gap-8'>
+                                    <Select
+                                        name="type"
+                                        value={formData.type}
+                                        onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="MPC">Matière Composite</SelectItem>
+                                            <SelectItem value="MP">Matière Première</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+
+                                    <Select
+                                        name="unite"
+                                        value={formData.unite}
+                                        onValueChange={(value) => setFormData({ ...formData, unite: value })}>
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Unité" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {unites.map((u) => (
+                                            <SelectItem key={u} value={u}>
+                                                {u}
+                                            </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                                 <Input
-                                    id="nom"
-                                    name="nom"
-                                    value={formData.nom}
-                                    onChange={handleInputChange}
-                                    required
+                                id="prix_unitaire"
+                                name="prix_unitaire"
+                                value={formData.prix_unitaire}
+                                onChange={handleInputChange}
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="Prix unitaire"
+                                className="w-[180px]"
+                                required
                                 />
-                            </div>
-                            
-                            <div className='flex gap-8'>
-                                <Select
-                                    name="type"
-                                    value={formData.type}
-                                    onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="MPC">Matière Composite</SelectItem>
-                                        <SelectItem value="MP">Matière Première</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                <Select
-                                    name="unite"
-                                    value={formData.unite}
-                                    onValueChange={(value) => setFormData({ ...formData, unite: value })}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Unité" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {unites.map((u) => (
-                                        <SelectItem key={u} value={u}>
-                                            {u}
-                                        </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <Input
-                            id="prix_unitaire"
-                            name="prix_unitaire"
-                            value={formData.prix_unitaire}
-                            onChange={handleInputChange}
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            placeholder="Prix unitaire"
-                            className="w-[180px]"
-                            required
-                            />
 
 
-                            <DialogFooter>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setShowModal(false)}
-                                >
-                                Cancel
-                                </Button>
-                                <Button type="submit">
-                                    {editMatierePremiere ? 'Update' : 'Create'}
-                                </Button>
-                            </DialogFooter>
-                        </form>
-                    </DialogContent>
+                                <DialogFooter>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setShowModal(false)}
+                                    >
+                                    Cancel
+                                    </Button>
+                                    <Button type="submit">
+                                        {editMatierePremiere ? 'Update' : 'Create'}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
                     </Dialog>
                 </div>
             </div>

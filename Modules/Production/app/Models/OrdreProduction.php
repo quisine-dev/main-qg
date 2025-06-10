@@ -5,6 +5,7 @@ namespace Modules\Production\Models;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Production\Models\MatierePremiere;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 // use Modules\Production\Database\Factories\OrdreProductionFactory;
@@ -28,8 +29,8 @@ class OrdreProduction extends Model
     //     // return OrdreProductionFactory::new();
     // }
 
-    public function matierePremieres():HasMany
+    public function matierePremiere(): BelongsTo
     {
-        return $this->hasMany(MatierePremiere::class);
+        return $this->belongsTo(MatierePremiere::class, 'mp_id');
     }
 }

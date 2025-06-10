@@ -6,13 +6,22 @@ import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem } from '@/types';
 import { Card, CardContent,CardHeader,CardTitle,CardFooter } from "@/components/ui/card";
 import { useForm, useFieldArray } from "react-hook-form";
-import { usePage } from '@inertiajs/react';
+// import { usePage } from '@inertiajs/react';
 
 // import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 
-
-
+import {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogCancel,
+    AlertDialogAction
+  } from "@/components/ui/alert-dialog";
 
 import {
     Table,
@@ -44,21 +53,41 @@ import { MatierePremiere } from './mp';
 
 
 
-export interface Composition {
-    id: string;
-    mpc_id: number | null;
-    mp_id: number | null;
-    qte: number;
-    created_at: string;
-    updated_at: string;
-    mpc?: MatierePremiere; // objet complet optionnel
-    mp?: MatierePremiere;  // idem
-  }
+    export interface Composition {
+        id: number;
+        mpc_id: number;
+        mpc: MatierePremiere;
+        matiere_premieres: MatierePremiere[];
+     }
 
-  interface InertiaProps{
-    mpcs : MatierePremiere[];
-    mps : MatierePremiere[];
-  }
+     interface PaginatedData {
+        data: Composition[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+    }
+
+    interface InertiaProps{
+        mpcs : MatierePremiere[];
+        mps : MatierePremiere[];
+        compositions : PaginatedData;
+    }
+    interface CompositionFormData {
+        mpc_id: number;
+        mpc: {
+            nom: string;
+            type: string;
+            unite: string;
+            prix_unitaire: number;
+        };
+        matierePremieres: MatierePremiere[];
+    }
 
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -70,18 +99,30 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 
-export default function Composition({mpcs, mps}:InertiaProps){
+export default function Composition({mpcs, mps, compositions}:InertiaProps){
+        console.log(compositions);
+        
         const [showModal, setShowModal] = useState(false);
         const [editComposition, setEditComposition] = useState<Composition | null>(null);
-        const [formData, setFormData] = useState({
-            mpc_id: null,
-            mp_id: null,
-            qte: 0,
-            mpc : null, // objet complet optionnel
-            matierePremieres : null
+        const [formData, setFormData] = useState<CompositionFormData>({
+            mpc_id: 0,
+            mpc : {
+                nom : '',
+                type : '',
+                unite : '',
+                prix_unitaire : 0.0
+            }, // objet complet optionnel
+            matierePremieres : []
         });
 
-        const { compositions } = usePage().props;
+        const { register, handleSubmit, control, watch,setValue, reset } = useForm({
+            defaultValues: {
+              mpc_id: "",
+              composants: [{ mp_id: "", qte: "" }],
+            },
+          });
+
+        // const { compositions } = usePage().props;
 
 
         
@@ -89,11 +130,43 @@ export default function Composition({mpcs, mps}:InertiaProps){
         const handleAdd = () => {
             setEditComposition(null);
             setFormData({ 
-                mpc_id: null,
-                mp_id: null,
-                qte: 0,
-                mpc : null, // objet complet optionnel
-                matierePremieres : null });
+                mpc_id: 0,
+                mpc : {
+                    nom : '',
+                    type : '',
+                    unite : '',
+                    prix_unitaire : 0.0
+                }, // objet complet optionnel, // objet complet optionnel
+                matierePremieres : [] });
+            setShowModal(true);
+        };
+
+        const handleEdit = (composition: Composition) => {
+            // setEditComposition(composition);
+            // setFormData({ 
+            //     mpc_id: composition.mpc_id ,
+            //     mpc: {
+            //         nom : composition.mpc.nom,
+            //         type : composition.mpc.type,
+            //         unite : composition.mpc.unite,
+            //         prix_unitaire : composition.mpc.prix_unitaire
+            //     },
+            //     matierePremieres:composition.matiere_premieres,                
+            // });
+            // setShowModal(true);
+            setEditComposition(composition);
+    
+            // Préparer les données à injecter dans le formulaire
+            const composants = composition.matiere_premieres.map(mp => ({
+                mp_id: mp.id.toString(),    // attention au type string car SelectItem attend string
+                qte: mp.pivot?.qte || "",   // quantité depuis le pivot, ou chaîne vide si undefined
+            }));
+
+            reset({
+                mpc_id: composition.mpc_id.toString(), // aussi en string car <select> gère string
+                composants: composants.length > 0 ? composants : [{ mp_id: "", qte: "" }]
+            });
+
             setShowModal(true);
         };
 
@@ -120,14 +193,22 @@ export default function Composition({mpcs, mps}:InertiaProps){
                 });
             }
         };
+
+        const handleDelete = (id: number) => {
+            if (confirm('Are you sure you want to delete this Composition?')) {
+                router.delete(`/production/composition/${id}`, {
+                    onSuccess: () => {
+                        toast.success('Composition deleted successfully');
+                    },
+                    onError: (errors) => {
+                        toast.error(errors.error || 'Failed to delete Composition');
+                    },
+                });
+            }
+        };
         
 
-        const { register, handleSubmit, control, watch,setValue } = useForm({
-            defaultValues: {
-              mpc_id: "",
-              composants: [{ mp_id: "", qte: "" }],
-            },
-          });
+        
 
           const { fields, append, remove } = useFieldArray({
             control,
@@ -152,6 +233,7 @@ export default function Composition({mpcs, mps}:InertiaProps){
             <div>
             <h1 className=" pl-5 text-xl font-bold">Liste des compositions</h1>
             <div className='grid grid-cols-6'>
+                {/* {console.log(compositions)} */}
                 {compositions.map((composition) => (
                     <div key={composition.id} className="mb-4">
                         <div className='p-5'>
@@ -173,7 +255,7 @@ export default function Composition({mpcs, mps}:InertiaProps){
                                             {composition.matiere_premieres.map(mp => (
                                                 <TableRow key={mp.id}>
                                                     <TableCell>{mp.nom}</TableCell>
-                                                    <TableCell>{mp.pivot.qte} {mp.unite}</TableCell>
+                                                    <TableCell>{mp.pivot?.qte} {mp.unite}</TableCell>
                                                 </TableRow>
                                             ))}
                                             </TableBody>
@@ -181,10 +263,8 @@ export default function Composition({mpcs, mps}:InertiaProps){
                                     </div>
                                 </CardContent>
                                 <CardFooter className="flex justify-between">
-                                    <Button variant="outline">Modifier</Button>
-                                    <Button variant="default" className='bg-red-700' >Supprimer</Button>
-
-                                    
+                                    <Button variant="outline" onClick={()=>{handleEdit(composition)}}>Modifier</Button>
+                                    <Button variant="default" className='bg-red-700' onClick={() => handleDelete(composition.id)} >Supprimer</Button>
                                 </CardFooter>
                             </Card>
                         </div>
@@ -225,16 +305,24 @@ export default function Composition({mpcs, mps}:InertiaProps){
 
                             {fields.map((field, index) => (
                                 <div key={field.id}>
+
                                 <CardContent className="p-4 space-y-2">
                                     <div className="flex items-center justify-between">
-                                    <label className="font-semibold">Composant #{index + 1}</label>
-                                    <Button variant="destructive" type="button" onClick={() => remove(index)}>Supprimer</Button>
+                                        <label className="font-semibold">Composant #{index + 1}</label>
+                                        <Button variant="destructive" type="button" onClick={() => remove(index)}>Supprimer</Button>
                                     </div>
-                                    <Select onValueChange={(value) => {
+                                    <Select
+                                         value={watch(`composants.${index}.mp_id`)}
+                                        onValueChange={(value) => {
                                         setValue(`composants.${index}.mp_id`, value); // ✅ ici
                                     }}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Choisir une matière première" />
+                                        {
+                                            mps.find(
+                                            (mp) => mp.id.toString() === watch(`composants.${index}.mp_id`)
+                                            )?.nom
+                                        }
                                     </SelectTrigger>
                                     <SelectContent>
                                         {mps.map((mp) => (
