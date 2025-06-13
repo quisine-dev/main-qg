@@ -6,6 +6,9 @@ use Modules\Production\Models\Recette;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+
 // use Modules\Production\Database\Factories\ProduitFactory;
 
 class Produit extends Model
