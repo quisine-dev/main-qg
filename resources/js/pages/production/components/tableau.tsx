@@ -20,7 +20,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-export default function Tableau({ titres, elements, titlePage, handleDelete }) {
+export default function Tableau({ titres, keys, elements, titlePage, handleDelete,onRowClick }) {
   const [showSearch, setShowSearch] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
@@ -84,21 +84,22 @@ export default function Tableau({ titres, elements, titlePage, handleDelete }) {
           </TableHeader>
 
           <TableBody>
-            {elements.map((element, index) => (
-              <TableRow key={index}>
-                <TableCell>{element.nom}</TableCell>
-                <TableCell>{element.unite}</TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    className="rounded-lg bg-red-500 w-8"
-                    onClick={() => openDialog(element.id)}
-                  >
-                    <Trash />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+          {elements.map((element, index) => (
+            <TableRow key={index} onClick={() => onRowClick(element)}>
+              {keys.map((key) => (
+                <TableCell key={key}>{element[key]}</TableCell>
+              ))}
+              <TableCell className="text-right">
+                <Button
+                  className="rounded-lg bg-red-500 w-8"
+                  onClick={() => openDialog(element.id)}
+                >
+                  <Trash />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
         </Table>
       </div>
 
