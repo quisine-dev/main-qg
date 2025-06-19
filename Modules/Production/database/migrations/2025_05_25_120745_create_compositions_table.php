@@ -13,9 +13,19 @@ return new class extends Migration
     {
         Schema::create('compositions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mpc_id')->constrained('matiere_premieres');
+        
+            // La matière première composite (ex : pain)
+            $table->foreignId('matiere_premiere_composite_id')->constrained('matiere_premieres');
+        
+            // L’ingrédient dans la composition (ex : farine)
+            $table->foreignId('matiere_premiere_id')->constrained('matiere_premieres');
+        
+            // Quantité utilisée
+            $table->decimal('quantite', 10, 2);
+        
             $table->timestamps();
         });
+        
     }
 
     /**

@@ -30,12 +30,27 @@ class MatierePremiere extends Model
     //     // return MatierePremiereFactory::new();
     // }
 
-    public function composition() : BelongsTo {
-        return $this->belongsTo(Composition::class);
+    public function ingredients()
+    {
+        return $this->belongsToMany(
+            MatierePremiere::class,
+            'compositions',
+            'matiere_premiere_composite_id', // cette matière (composite)
+            'matiere_premiere_id'            // ses ingrédients
+        )->withPivot('quantite');
     }
 
-    public function compositions() : BelongsToMany {
-        return $this->belongsToMany(Composition::class);
+    /**
+     * Les matières premières composites dans lesquelles cette matière première est utilisée.
+     */
+    public function utiliseeDans()
+    {
+        return $this->belongsToMany(
+            MatierePremiere::class,
+            'compositions',
+            'matiere_premiere_id',          // cette matière (simple)
+            'matiere_premiere_composite_id' // les composites où elle est utilisée
+        )->withPivot('quantite');
     }
 
 

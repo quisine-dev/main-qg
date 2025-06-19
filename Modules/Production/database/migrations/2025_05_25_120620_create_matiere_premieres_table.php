@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('matiere_premieres', function (Blueprint $table) {
             $table->id();
             $table->string('nom');
-            $table->string('type');
+            $table->enum('type', ['simple', 'composite']);
             $table->string('unite');
-            $table->decimal('prix_unitaire');            
+            $table->decimal('prix_unitaire', 10, 2);
             $table->timestamps();
         });
     }

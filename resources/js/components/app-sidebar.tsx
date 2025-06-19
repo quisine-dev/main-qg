@@ -30,11 +30,6 @@ const mainNavItems: NavItem[] = [
         icon: Package,
     },
     {
-        title: 'Composition',
-        href: '/production/composition',
-        icon: Layers,
-    },
-    {
         title: 'Recette',
         href: '/production/recette',
         icon: BookOpen,
