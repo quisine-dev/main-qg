@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('recette_id')->constrained();
             $table->foreignId('mp_id')->constrained('matiere_premieres');
+            $table->decimal('qte'); // Quantité utilisée dans la recette
             $table->timestamps();
         });
     }

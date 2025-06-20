@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('ordre_productions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mp_id')->constrained('matiere_premieres');
-            $table->decimal('qte');
+            $table->decimal('qte', 10, 2);
             $table->string('operateur');
-            $table->string('statut');            
+            $table->enum('statut', ['en_attente', 'en_cours', 'termine', 'annule'])->default('en_attente');
+            $table->date('date_production')->nullable();
+            $table->text('remarques')->nullable();
             $table->timestamps();
         });
     }

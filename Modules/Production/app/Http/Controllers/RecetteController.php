@@ -5,53 +5,90 @@ namespace Modules\Production\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Modules\Production\Models\Produit;
+use Modules\Production\Models\Recette;
+use Modules\Production\Models\MatierePremiere;
 
 class RecetteController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Liste toutes les recettes avec leurs relations.
      */
     public function index()
     {
-        return Inertia::render('production/recette');
+        return Inertia::render('production/recette', [
+            'recettes' => Recette::with(['produit', 'matieres'])->get(),
+            'produits' => Produit::all(),
+            'matieres' => MatierePremiere::all(),
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Stocke une nouvelle recette.
      */
-    public function create()
+    public function store(Request $request)
     {
-        return view('production::create');
+        $validated = $request->validate([
+            'produit_id' => 'required|exists:produits,id',
+            'composants' => 'required|array|min:1',
+            'composants.*.mp_id' => 'required|exists:matiere_premieres,id',
+            'composants.*.qte' => 'required|numeric|min:0',
+        ]);
+
+        $recette = Recette::create([
+            'produit_id' => $validated['produit_id'],
+        ]);
+
+        // Sync des matières premières avec les quantités
+        $pivotData = collect($validated['composants'])
+            ->mapWithKeys(fn ($comp) => [
+                $comp['mp_id'] => ['qte' => $comp['qte']]
+            ])
+            ->toArray();
+
+        $recette->matieres()->sync($pivotData);
+
+        return redirect()->back();
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Met à jour une recette existante.
      */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function update(Request $request, $id)
     {
-        return view('production::show');
+        $recette = Recette::findOrFail($id);
+
+        $validated = $request->validate([
+            'produit_id' => 'required|exists:produits,id',
+            'composants' => 'required|array|min:1',
+            'composants.*.mp_id' => 'required|exists:matiere_premieres,id',
+            'composants.*.qte' => 'required|numeric|min:0',
+        ]);
+
+        $recette->update([
+            'produit_id' => $validated['produit_id'],
+        ]);
+
+        // Sync des matières premières avec les quantités
+        $pivotData = collect($validated['composants'])
+            ->mapWithKeys(fn ($comp) => [
+                $comp['mp_id'] => ['qte' => $comp['qte']]
+            ])
+            ->toArray();
+
+        $recette->matieres()->sync($pivotData);
+
+        return redirect()->back();
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Supprime une recette.
      */
-    public function edit($id)
+    public function destroy($id)
     {
-        return view('production::edit');
+        $recette = Recette::findOrFail($id);
+        $recette->delete();
+
+        return redirect()->back();
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
 }

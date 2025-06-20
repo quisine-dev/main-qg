@@ -20,7 +20,12 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-export default function Tableau({ titres, keys, elements, titlePage, handleDelete,onRowClick }) {
+// 🔧 Fonction utilitaire pour accéder à des propriétés imbriquées
+function getValueByPath(obj, path) {
+  return path.split('.').reduce((acc, part) => acc?.[part], obj);
+}
+
+export default function Tableau({ titres, keys, elements, titlePage, handleDelete, onRowClick }) {
   const [showSearch, setShowSearch] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
@@ -41,7 +46,6 @@ export default function Tableau({ titres, keys, elements, titlePage, handleDelet
       <div className="flex justify-between items-center mb-8 mt-5">
         <h2 className="text-gray-500 text-lg font-medium">{titlePage}</h2>
         <div className="flex gap-3 items-center">
-          {/* Search Area with animation */}
           <div
             className={`flex items-center gap-2 transition-all duration-300 ${
               showSearch ? 'w-64' : 'w-10'
@@ -64,7 +68,6 @@ export default function Tableau({ titres, keys, elements, titlePage, handleDelet
             </Button>
           </div>
 
-          {/* Filter Button */}
           <Button variant="outline">
             <SlidersHorizontal />
             <span className="mx-2">Filter</span>
@@ -80,30 +83,33 @@ export default function Tableau({ titres, keys, elements, titlePage, handleDelet
               {titres.map((titre) => (
                 <TableHead key={titre}>{titre}</TableHead>
               ))}
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-          {elements.map((element, index) => (
-            <TableRow key={index} onClick={() => onRowClick(element)}>
-              {keys.map((key) => (
-                <TableCell key={key}>{element[key]}</TableCell>
-              ))}
-              <TableCell className="text-right">
-                <Button
-                  className="rounded-lg bg-red-500 w-8"
-                  onClick={() => openDialog(element.id)}
-                >
-                  <Trash />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
+            {elements.map((element, index) => (
+              <TableRow key={index} onClick={() => onRowClick(element)} className="cursor-pointer">
+                {keys.map((key) => (
+                  <TableCell key={key}>{getValueByPath(element, key) || "—"}</TableCell>
+                ))}
+                <TableCell className="text-right">
+                  <Button
+                    className="rounded-lg bg-red-500 w-8"
+                    onClick={(e) => {
+                      e.stopPropagation(); // ⛔ Empêche le clic de déclencher `onRowClick`
+                      openDialog(element.id);
+                    }}
+                  >
+                    <Trash />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
         </Table>
       </div>
 
-      {/* Modal de confirmation */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
@@ -114,9 +120,7 @@ export default function Tableau({ titres, keys, elements, titlePage, handleDelet
             <Button variant="outline" onClick={() => setShowModal(false)}>
               Annuler
             </Button>
-            <Button onClick={confirmDelete}>
-              Confirmer
-            </Button>
+            <Button onClick={confirmDelete}>Confirmer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

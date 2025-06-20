@@ -13,6 +13,7 @@ export default function Formulaire({
   isEditing,
   withComposants = false,
   composantsOptions = [],
+  showComposantsUnconditionally = false, // 👈 nouveau
 }) {
   const {
     register,
@@ -23,25 +24,22 @@ export default function Formulaire({
     formState: { errors },
   } = useFormContext();
 
-  // 👀 Suivre le champ "type"
   const typeValue = watch("type");
 
-  // Gestion dynamique des champs composants
   const { fields = [], append, remove } = useFieldArray({
     name: "composants",
     control,
   });
 
-  // Réinitialiser les composants si le type devient simple
   useEffect(() => {
-    if (typeValue !== "composite") {
+    if (!showComposantsUnconditionally && typeValue !== "composite") {
       setValue("composants", []);
     }
-  }, [typeValue]);
+  }, [typeValue, showComposantsUnconditionally]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 h-96 overflow-y-auto ">
-      {/* Champs classiques depuis props.inputs */}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 h-full overflow-y-auto">
+      {/* Inputs de base */}
       {inputs.map(({ name, label, type = "text", placeholder, options, accept, ...rest }) => (
         <div key={name} className="flex flex-col space-y-1">
           <Label className="text-gray-500" htmlFor={name}>
@@ -85,8 +83,8 @@ export default function Formulaire({
         </div>
       ))}
 
-      {/* Champs dynamiques "composants" si type === "composite" */}
-      {withComposants && typeValue === "composite" && (
+      {/* Champs composants */}
+      {withComposants && (showComposantsUnconditionally || typeValue === "composite") && (
         <div className="space-y-4">
           <Label className="text-lg font-semibold mr-5">Composants</Label>
 
@@ -128,13 +126,13 @@ export default function Formulaire({
           ))}
 
           <Button variant="outline" type="button" onClick={() => append({ mp_id: "", qte: "" })}>
-            <Plus/> Ajouter un composant
+            <Plus /> Ajouter un composant
           </Button>
         </div>
       )}
 
       <div className="flex gap-2 pt-4">
-        <Button type="submit">{!isEditing ? "Envoyer" : "Editer"}</Button>
+        <Button type="submit">{!isEditing ? "Envoyer" : "Éditer"}</Button>
         {isEditing && onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
             Annuler l’édition
@@ -144,3 +142,4 @@ export default function Formulaire({
     </form>
   );
 }
+

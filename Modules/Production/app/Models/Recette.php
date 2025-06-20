@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Production\Models\MatierePremiere;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 // use Modules\Production\Database\Factories\RecetteFactory;
 
@@ -14,25 +15,17 @@ class Recette extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     */
-    protected $fillable = [
-        "produit_id",
-        "qte"
-    ];
+    protected $fillable = ['produit_id'];
 
-    // protected static function newFactory(): RecetteFactory
-    // {
-    //     // return RecetteFactory::new();
-    // }
-    public function matieresPremieres(): BelongsToMany
+    public function matieres():BelongsToMany
     {
-        return $this->belongsToMany(MatierePremiere::class);
+        return $this->belongsToMany(MatierePremiere::class, 'mp_recette', 'recette_id', 'mp_id')
+                    ->withPivot('qte')
+                    ->withTimestamps();
     }
 
-    public function produit(): HasOne
+    public function produit():BelongsTo
     {
-        return $this->hasOne(Produit::class);
+        return $this->belongsTo(Produit::class);
     }
 }

@@ -21,7 +21,9 @@ class OrdreProduction extends Model
         "mp_id",
         "qte",
         "operateur",
-        "statut"
+        "statut",
+        "date_production",
+        "remarques"
     ];
 
     // protected static function newFactory(): OrdreProductionFactory

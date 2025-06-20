@@ -15,7 +15,7 @@ class OrdreProductionController extends Controller
      */
     public function index()
     {
-        $mpcs = MatierePremiere::where('type','MPC')->get();
+        $mpcs = MatierePremiere::where('type','composite')->get();
         $ordres = OrdreProduction::with('matierePremiere')->get();
         return Inertia::render('production/ordre-production',['mpcs'=>$mpcs,'ordres'=>$ordres]);
     }
@@ -34,21 +34,15 @@ class OrdreProductionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'composants' => 'required|array|min:1',
-            'composants.*.mp_id' => 'required|exists:matiere_premieres,id',
-            'composants.*.qte' => 'required|numeric|min:0.01',
+            'mp_id' => 'required|exists:matiere_premieres,id',
+            'qte' => 'required|numeric|min:0',
             'operateur' => 'required|string|max:255',
-            'statut' => 'required|string|max:10',
+            'statut' => 'required|in:en_attente,en_cours,termine,annule',
+            'date_production' => 'nullable|date',
+            'remarques' => 'nullable|string',
         ]);
-
-        foreach ($validated['composants'] as $composant) {
-            OrdreProduction::create([
-                'mp_id' => $composant['mp_id'],
-                'qte' => $composant['qte'],
-                'operateur' => $validated['operateur'],
-                'statut' => $validated['statut'],
-            ]);
-        }
+    
+        $ordre = OrdreProduction::create($validated);
 
         return redirect()->route('production.ordre-production.index')->with('success', 'Ordre de Production ajoutée avec succès.');
 
@@ -77,10 +71,30 @@ class OrdreProductionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id) {}
+    public function update(Request $request, OrdreProduction $ordre) {
+        $validated = $request->validate([
+            'mp_id' => 'required|exists:matiere_premieres,id',
+            'qte' => 'required|numeric|min:0',
+            'operateur' => 'required|string|max:255',
+            'statut' => 'required|in:en_attente,en_cours,termine,annule',
+            'date_production' => 'nullable|date',
+            'remarques' => 'nullable|string',
+        ]);
+    
+        $ordre->update($validated);
+        return redirect()->route('production.ordre-production.index')->with('success', 'Ordre de Production ajoutée avec succès.');
+
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id) {}
+    public function destroy(OrdreProduction $ordre)
+    {
+        $ordre->delete();
+
+        return redirect()->route('production.ordre-production.index')->with('success', 'Ordre de Production ajoutée avec succès.');
+
+    }
+
 }

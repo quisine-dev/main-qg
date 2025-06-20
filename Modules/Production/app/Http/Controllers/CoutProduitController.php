@@ -5,6 +5,7 @@ namespace Modules\Production\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Modules\Production\Models\Produit;
 
 class CoutProduitController extends Controller
 {
@@ -13,7 +14,11 @@ class CoutProduitController extends Controller
      */
     public function index()
     {
-        return Inertia::render('production/cout-production');
+        
+        return Inertia::render('production/cout-production',[
+            'produits' => Produit::all(),
+
+        ]);
 
     }
 
